@@ -1,0 +1,98 @@
+<html>
+  <head>
+    <script src="https://cdn.pubnub.com/sdk/javascript/pubnub.4.3.3.js"></script>
+    <title>Geolocation</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+	    var map;
+		var marker=null;
+		
+    	function initMap()
+		{
+		 
+			
+		 map = new google.maps.Map(document.getElementById('map'), {
+          center: {lat: 0, lng: 0},
+          scrollwheel: false,
+          zoom: 5
+        });		
+		
+		var pubnub = new PubNub({
+    subscribeKey : 'sub-c-06a9fee8-dfb4-11e6-b4a1-02ee2ddab7fe'  }); 
+	 pubnub.subscribe({
+					channels: ['my_channel'],
+					withPresence: true // also subscribe to presence instances.
+						});
+						
+		pubnub.addListener({
+    
+    message: function(m) {
+        // handle message
+        var channelName = m.channel; // The channel for which the message belongs
+        var channelGroup = m.subscription; // The channel group or wildcard subscription match (if exists)
+        var pubTT = m.timetoken; // Publish timetoken
+        var msg = m.message; // The Payload
+		console.log(msg);
+		console.log(msg.Latitude);
+		if (marker == null)
+		{
+		   marker = new google.maps.Marker({
+			  // The below line is equivalent to writing:
+			  // position: new google.maps.LatLng(-34.397, 150.644)
+			  position: {lat: parseFloat(msg.Latitude), lng: parseFloat(msg.Logitude)},
+			  map: map
+			});
+
+		}
+		 var latlng = new google.maps.LatLng(parseFloat(msg.Latitude),parseFloat(msg.Longitude));
+		 console.log(latlng);	
+       marker.setPosition(latlng);	
+		map.setCenter(latlng);
+		
+	
+    }
+
+   
+
+    }
+)	;
+		//navigator.geolocation.getCurrentPosition(onSuccess, onError);
+
+		}
+	
+	
+	
+
+
+    
+    </script>
+ <script
+  src="https://code.jquery.com/jquery-2.2.4.min.js"
+  integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+  crossorigin="anonymous"></script>	
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBQj4w925AoRMFfYds30uCs4__YEHLYoL0&callback=initMap"
+    async defer>
+	
+	</script>
+	
+		
+	
+  </body>
+</html>
